@@ -1,0 +1,78 @@
+
+---
+
+    - name: Installing apache2
+      ansible.builtin.apt: 
+        name: apache2
+        state: present
+        update_cache: true
+      when: ansible_facts['distribution'] == "Ubuntu"
+
+    - name: Installing others
+      ansible.builtin.apt:
+        name: "{{ list }}"
+        state: present
+        update_cache: true
+
+    - name: Installing php packages
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: present 
+        update_cache: true
+      loop: "{{ php_modules }}" 
+
+    - name: Set root user password   
+      mysql_user:
+        name: root
+        password: "{{ mysql_root_password}}"
+        check_implicit_admin: true
+        login_unix_socket: '/var/run/mysqld/mysqld.sock'
+
+    - name: Create .my.cnf     
+      ansible.builtin.template:
+        src: client.my.cnf.j2
+        dest: /root/.my.cnf
+        owner: root
+        group: root
+        mode: 0600
+
+    - name: Create a new database {{ mysql_database }}
+      mysql_db:
+        name: "{{ mysql_database }}"
+        state: present
+        login_unix_socket: '/var/run/mysqld/mysqld.sock'
+        
+
+    - name: Create MySQL user
+      mysql_user:
+        name: "{{ mysql_user }}"
+        password: "{{ mysql_password }}"
+        host: localhost
+        state: present
+        login_user: root
+        login_password: "{{ mysql_root_password }}" 
+        priv: "{{ mysql_database }}.*:ALL"
+        login_unix_socket: '/var/run/mysqld/mysqld.sock'
+
+
+    - name: Installing and copying file of wordpress using rsync
+      ansible.posix.synchronize:
+        src: wordpress/
+        dest: /var/www/html/task3/
+
+
+    - name: Copy apache2 configuration file for WordPress
+      ansible.builtin.template:
+        src: apache2.conf.j2
+        dest: "{{ config_dest }}"
+        mode: "0644"
+
+    - name: activate apache wordpress configuration file
+      ansible.builtin.command: "{{ item }}"
+      loop: "{{ commands }}"
+      notify: Restart Apache2
+
+  
+    
+
+

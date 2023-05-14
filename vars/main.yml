@@ -1,0 +1,23 @@
+---
+# vars file for wordpress_role
+admin_email: alphahost@gmail.com
+config_dest: /etc/apache2/sites-available/wordpress.conf 
+web_dest: /var/www/html/task3/
+http_port: 80
+#color: red
+
+
+
+mysql_user: wp_ubuntuadmin
+mysql_password: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          31613931306233366338373163363835633361623930326334646132343466613638393162313530
+          3139376165343733386136303431356533366362613531360a323266366438613766343761336337
+          38653161636332316233373136386363346366633336313863333636383764663661626438333236
+          6639373666336139630a366333393734366530353030663833633732316634333162383462666532
+          6134
+mysql_database: ubuntudb
+
+mysql_root_password: ytrewq
+
+# mysql_password is vaisak007
